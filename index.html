@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday Parvathy!</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap');
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+    body { background: linear-gradient(135deg, #18002e, #320054); color: #fff; overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    
+    .screen { display: none; width: 100%; max-width: 420px; min-height: 100vh; padding: 20px; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; z-index: 2; }
+    .active { display: flex; animation: fadeIn 0.8s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    
+    button { background: linear-gradient(45deg, #ff4081, #ff79b0); color: white; border: none; padding: 14px 28px; border-radius: 30px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 25px; box-shadow: 0 4px 15px rgba(255, 64, 129, 0.5); transition: 0.2s; }
+    button:active { transform: scale(0.95); }
+
+    /* Scene 1: Bow & Arrow + Heart Tree */
+    .arrow-container { position: relative; width: 280px; height: 200px; margin: 20px 0; }
+    .bow { position: absolute; left: 10px; top: 70px; font-size: 50px; transform: rotate(-45deg); }
+    .arrow { position: absolute; left: 20px; top: 85px; font-size: 35px; transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1); }
+    .target-heart { position: absolute; right: 10px; top: 75px; font-size: 50px; animation: pulse 1s infinite alternate; }
+    .tree-box { font-size: 90px; display: none; animation: popUp 0.8s ease-out; }
+    
+    @keyframes pulse { to { transform: scale(1.15); } }
+    @keyframes popUp { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Scene 2: Floating Balloons */
+    .balloon-container { display: flex; gap: 15px; margin: 30px 0; justify-content: center; align-items: flex-end; width: 100%; height: 160px; position: relative; }
+    .balloon { width: 60px; height: 75px; border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; cursor: pointer; position: absolute; box-shadow: inset -8px -8px 10px rgba(0,0,0,0.2); animation: float 3s ease-in-out infinite alternate; }
+    .balloon::after { content: ''; position: absolute; bottom: -12px; left: 29px; width: 2px; height: 16px; background: rgba(255,255,255,0.7); }
+    
+    .b1 { background: #ff5252; left: 5%; animation-delay: 0s; }
+    .b2 { background: #ff4081; left: 29%; animation-delay: 0.5s; top: 10px; }
+    .b3 { background: #e040fb; left: 53%; animation-delay: 1s; }
+    .b4 { background: #7c4dff; left: 77%; animation-delay: 0.3s; top: 15px; }
+
+    @keyframes float { 0% { transform: translateY(0px) rotate(-3deg); } 100% { transform: translateY(-18px) rotate(4deg); } }
+
+    /* Scene 3: Unfolding Letter */
+    .paper-letter { background: #fffdf0; color: #2c2c2c; padding: 25px; border-radius: 6px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: left; border-left: 5px solid #ff4081; display: none; font-family: 'Sacramento', cursive; font-size: 24px; line-height: 1.5; margin-top: 15px; width: 100%; }
+    .envelope-box { background: #d4a373; color: white; padding: 20px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.3); border: 2px dashed #faedcd; font-size: 18px; }
+
+    /* Scene 4: Falling Cakes */
+    .falling-cake { position: absolute; top: -50px; font-size: 32px; animation: fall linear infinite; z-index: 1; pointer-events: none; }
+    @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+    
+    .cat-box { font-size: 80px; margin: 15px 0; animation: bounce 1.5s infinite alternate; }
+    @keyframes bounce { to { transform: translateY(-15px); } }
+  </style>
+</head>
+<body>
+
+  <audio id="bg-music" loop preload="auto">
+    <source src="song.mp3" type="audio/mpeg">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a7315b.mp3" type="audio/mpeg">
+  </audio>
+
+  <audio id="hbd-music" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2020/11/10/audio_5b3e215f69.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Screen 1: Heart Intro -->
+  <div class="screen active" id="s1">
+    <p style="color: #ffb74d; font-size: 16px; margin-bottom: 10px;">A special moment for you</p>
+    <div style="font-size: 80px; cursor: pointer;" onclick="startExperience()">💖</div>
+    <p style="margin-top: 15px; opacity: 0.8;">Tap the heart to enter</p>
+  </div>
+
+  <!-- Screen 2: Bow & Arrow Shooting into Heart Tree -->
+  <div class="screen" id="s2">
+    <h2 id="s2-title">Shoot the Heart! 🏹</h2>
+    <div class="arrow-container" id="arrowStage">
+      <div class="bow">🏹</div>
+      <div class="arrow" id="arrow">➡️</div>
+      <div class="target-heart" id="targetHeart" onclick="shootArrow()">💖</div>
+    </div>
+    <div class="tree-box" id="treeBox">🌳💖</div>
+    <p id="s2-desc" style="opacity:0.8;">Tap the heart to shoot!</p>
+    <button id="b2" style="display:none;" onclick="nextScreen(2)">Continue</button>
+  </div>
+
+  <!-- Screen 3: Floating Balloons -->
+  <div class="screen" id="s3">
+    <h2>Pop the balloons! 🎈</h2>
+    <div class="balloon-container">
+      <div class="balloon b1" onclick="pop(this, 'Cheers to an awesome year!')"></div>
+      <div class="balloon b2" onclick="pop(this, 'Keep shining bright!')"></div>
+      <div class="balloon b3" onclick="pop(this, 'You bring so much joy!')"></div>
+      <div class="balloon b4" onclick="pop(this, 'Wishing you endless happiness!')"></div>
+    </div>
+    <div id="reasons" style="text-align: left; width: 100%;"></div>
+    <button id="b3" style="display:none;" onclick="nextScreen(3)">Read Letter</button>
+  </div>
+
+  <!-- Screen 4: Letter -->
+  <div class="screen" id="s4">
+    <div class="envelope-box" id="env" onclick="openLetter()">✉️ Tap to Open Letter</div>
+    <div class="paper-letter" id="letterContent">
+      <p style="font-weight: bold; font-family: 'Poppins', sans-serif; font-size: 18px;">Dear Parvathy,</p><br>
+      <p>Wishing you the happiest birthday ever! May your day be packed with laughter, love, and everything you enjoy most.</p><br>
+      <p style="font-family: 'Poppins', sans-serif; font-size: 16px;">Stay awesome,</p>
+      <p style="font-family: 'Poppins', sans-serif; font-size: 18px;"><strong>— Rithvik</strong></p>
+    </div>
+    <button id="b4" style="display:none;" onclick="startFinale()">Celebrate 🎉</button>
+  </div>
+
+  <!-- Screen 5: Cake Rain + Cat Finale + Rickroll Button -->
+  <div class="screen" id="s5">
+    <div class="cat-box">🐱🎂</div>
+    <h1 style="font-size: 32px; color: #ff4081;">HAPPY BIRTHDAY</h1>
+    <h1 style="font-size: 38px; margin-bottom: 10px; color: #ffeb3b;">Parvathy!</h1>
+    <p>Hope you love your special day! ❤️</p>
+    <button onclick="window.location.href='https://www.youtube.com/watch?v=dQw4w9WgXcQ'">Let's celebrate together 🎉</button>
+  </div>
+
+  <script>
+    let poppedCount = 0;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq, duration) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + duration);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function startExperience() {
+      audioCtx.resume();
+      document.getElementById('bg-music').play().catch(()=>{});
+      nextScreen(1);
+    }
+
+    function nextScreen(cur) {
+      document.getElementById(`s${cur}`).classList.remove('active');
+      document.getElementById(`s${cur+1}`).classList.add('active');
+    }
+
+    function shootArrow() {
+      playSound(600, 0.2);
+      document.getElementById('arrow').style.transform = 'translateX(180px)';
+      setTimeout(() => {
+        playSound(900, 0.3);
+        confetti({ particleCount: 40, spread: 60, origin: { y: 0.5 } });
+        document.getElementById('arrowStage').style.display = 'none';
+        document.getElementById('targetHeart').style.display = 'none';
+        document.getElementById('treeBox').style.display = 'block';
+        document.getElementById('s2-title').innerText = 'The Heart Bloomed! 🌸';
+        document.getElementById('s2-desc').innerText = 'A tree of memories for you!';
+        document.getElementById('b2').style.display = 'block';
+      }, 700);
+    }
+
+    function pop(el, msg) {
+      playSound(800, 0.1);
+      el.style.display = 'none';
+      poppedCount++;
+      confetti({ particleCount: 25, spread: 50, origin: { y: 0.6 } });
+      document.getElementById('reasons').innerHTML += `<p style="background: rgba(255,255,255,0.12); padding: 10px; margin: 6px 0; border-radius: 8px;">✨ ${msg}</p>`;
+      if (poppedCount === 4) document.getElementById('b3').style.display = 'block';
+    }
+
+    function openLetter() {
+      playSound(500, 0.2);
+      document.getElementById('env').style.display = 'none';
+      document.getElementById('letterContent').style.display = 'block';
+      document.getElementById('b4').style.display = 'block';
+    }
+
+    function startFinale() {
+      nextScreen(4);
+      
+      const bgMusic = document.getElementById('bg-music');
+      if (bgMusic) bgMusic.pause();
+
+      const hbdMusic = document.getElementById('hbd-music');
+      if (hbdMusic) hbdMusic.play().catch(()=>{});
+
+      spawnCakes();
+      setInterval(() => {
+        confetti({ particleCount: 50, spread: 80, origin: { y: 0.6 } });
+      }, 2000);
+    }
+
+    function spawnCakes() {
+      for(let i = 0; i < 15; i++) {
+        const cake = document.createElement('div');
+        cake.className = 'falling-cake';
+        cake.innerText = i % 2 === 0 ? '🍰' : '🎂';
+        cake.style.left = Math.random() * 90 + 'vw';
+        cake.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+        cake.style.animationDelay = (Math.random() * 3) + 's';
+        document.body.appendChild(cake);
+      }
+    }
+  </script>
+</body>
+</html>
